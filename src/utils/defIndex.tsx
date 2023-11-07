@@ -11,7 +11,7 @@ export const ImageGallery = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const url = "https://api.flickr.com/services/rest/?method=flickr.photos.getRecent&api_key=94fdd14a300113aff95a76b9c8996483&text";
+        const url = "https://api.flickr.com/services/rest/?method=flickr.photos.getRecent&api_key=94fdd14a300113aff95a76b9c8996483&text&safe_search=1";
         const response = await axios.get(url);
         const xmlDoc = new DOMParser().parseFromString(response.data, "text/xml");
 
