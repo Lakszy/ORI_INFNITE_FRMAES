@@ -12,7 +12,6 @@ export const Form = ({ handleSubmit, isLoading }: IForm) => {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
 
-  // Load search history from local storage on component mount
   useEffect(() => {
     const storedSearchHistory = localStorage.getItem("searchHistory");
     if (storedSearchHistory) {
@@ -20,10 +19,32 @@ export const Form = ({ handleSubmit, isLoading }: IForm) => {
     }
   }, []);
 
-  // Save search history to local storage whenever it changes
   useEffect(() => {
     localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
   }, [searchHistory]);
+
+  useEffect(() => {
+    // Function to fetch images from the API
+    const fetchImages = async (searchTerm: string) => {
+      if (searchTerm.trim() === "") {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`https://your-api-url.com/images?q=${searchTerm}`);
+        if (response.ok) {
+          const data = await response.json();
+          setSearchResults(data);
+        }
+      } catch (error) {
+        console.error('Error fetching images:', error);
+      }
+    };
+
+    // Fetch images as the user types
+    fetchImages(inputValue);
+  }, [inputValue]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -40,12 +61,10 @@ export const Form = ({ handleSubmit, isLoading }: IForm) => {
       return;
     }
 
-    // Add the current search query to the search history
     setSearchHistory((prevSearchHistory) => [inputValue, ...prevSearchHistory]);
 
     handleSubmit(e);
   };
-
 
   const handleSearchHistoryClick = (query: string) => {
     setInputValue(query);
@@ -53,7 +72,6 @@ export const Form = ({ handleSubmit, isLoading }: IForm) => {
   };
 
   return (
-    <>
     <div className="form-container">
       <form onSubmit={handleFormSubmit}>
         <input
@@ -64,7 +82,7 @@ export const Form = ({ handleSubmit, isLoading }: IForm) => {
           disabled={isLoading}
           placeholder="Example: Bing"
         />
-        
+
         <button disabled={isLoading}>Search</button>
         {showErrorMessage && inputValue.trim() === "" && (
           <p>Please enter something!</p>
@@ -81,7 +99,15 @@ export const Form = ({ handleSubmit, isLoading }: IForm) => {
             </ul>
           </div>
         )}
+
+        {searchResults.length > 0 && (
+          <div className="image-container">
+            {searchResults.map((imageUrl, index) => (
+              <img key={index} src={imageUrl} alt={`Image ${index}`} />
+            ))}
+          </div>
+        )}
       </form>
-    </div>    </>
+    </div>
   );
 };
