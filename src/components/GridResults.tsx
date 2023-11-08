@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import { Card } from "./Card";
 import { ResponseAPI, Result } from "../interface";
 import { getImages } from "../utils";
-import { Loading } from "./Loading";
 
 interface IGridResults {
   handleLoading: (e: boolean) => void;
@@ -17,26 +16,19 @@ export const GridResults = ({ query, handleLoading }: IGridResults) => {
     () => getImages(query)
   );
 
-  // Call handleLoading when loading state changes
-  useEffect(() => handleLoading(isLoading), [isLoading]);
 
-  if (isLoading) return <Loading />; // Display loading indicator
-
-  if (isError) return <p>{(error as AxiosError).message}</p>; // Display error message
+  if (isError) return <p>{(error as AxiosError).message}</p>;
 
   let photos: Result[] = [];
 
-  // Check if there is data and it's a string
   if (data && typeof data === "string") {
     
     try {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(data, "text/xml");
 
-      // Get the photo elements
       const photoElements = xmlDoc.querySelectorAll("photo");
 
-      // Loop through the photo elements and extract their attributes
       photos = Array.from(photoElements).map((photoElement) => ({
         id: photoElement.getAttribute("id"),
         owner: photoElement.getAttribute("owner"),
@@ -62,12 +54,10 @@ export const GridResults = ({ query, handleLoading }: IGridResults) => {
 
       <div className="grid">
         {photos.map((photo: Result) => (
-          // Render the Card component for each photo
           <Card key={photo.id} res={photo} />
         ))}
       </div>
     </>
   );
 };
-
 
